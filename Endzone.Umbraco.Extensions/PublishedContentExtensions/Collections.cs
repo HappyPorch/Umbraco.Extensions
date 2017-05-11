@@ -1,12 +1,36 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Umbraco.Core.Models;
 using Umbraco.Web;
 
 namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
 {
-    public static class ContentTree
+    public static class Collections
     {
+
+        /// <summary>
+        /// (typed) Use for NestedContent properties 
+        /// </summary>
+        public static IEnumerable<IPublishedContent> GetNestedContent(this IPublishedContent content, string property, bool recursive = false)
+        {
+            var list = content.GetPropertyValue<IEnumerable<IPublishedContent>>(property, recursive);
+            return list ?? Enumerable.Empty<IPublishedContent>();
+        }
+
+        /// <summary>
+        /// (typed) Works with Multinode Treepicker. 
+        /// </summary>
+        public static IEnumerable<int> GetNodes(this IPublishedContent content, string property, bool recursive = false)
+        {
+            string panelsAsString = content.GetPropertyValue(property, recursive) as string;
+            int[] templates = null;
+            if (!string.IsNullOrEmpty(panelsAsString))
+            {
+                templates = Array.ConvertAll(panelsAsString.Split(','), s => int.Parse(s));
+            }
+            return templates ?? Enumerable.Empty<int>();
+        }
 
         /// <summary>
         /// Gets all visible children (using umbracoNaviHide)
