@@ -275,6 +275,7 @@
     <Compile Include="PublishedContentExtensions\MultiUrlPicker.cs" />
     <Compile Include="PublishedContentExtensions\Media.cs" />
     <Compile Include="PublishedContentExtensions\Tags.cs" />
+    <Compile Include="PublishedContentExtensions\ContentTree.cs" />
     <Compile Include="UriExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
