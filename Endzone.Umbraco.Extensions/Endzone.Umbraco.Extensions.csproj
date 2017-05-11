@@ -274,6 +274,7 @@
     <Compile Include="PublishedContentExtensions\LanguageVariants .cs" />
     <Compile Include="PublishedContentExtensions\MultiUrlPicker.cs" />
     <Compile Include="PublishedContentExtensions\Media.cs" />
+    <Compile Include="PublishedContentExtensions\String.cs" />
     <Compile Include="PublishedContentExtensions\Tags.cs" />
     <Compile Include="PublishedContentExtensions\ContentTree.cs" />
     <Compile Include="UriExtensions.cs" />
