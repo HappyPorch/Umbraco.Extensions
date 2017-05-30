@@ -23,7 +23,7 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
                 {
                     if (item.HasValue(property))
                     {
-                        taglist.AddRange(item.GetPropertyValue<string>(property).Split(',').Select(i => i.Trim()));
+                        taglist.AddRange(item.GetPropertyValue<string[]>(property));
                     }
                 }
                 taglist = taglist.OrderBy(i => i).Distinct().ToList();
