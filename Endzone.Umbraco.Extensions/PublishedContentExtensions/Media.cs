@@ -49,14 +49,11 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
         /// <param name="prepend"></param>
         /// <param name="append"></param>
         /// <returns></returns>
-        public static IHtmlString ShowImagesCropped(this IPublishedContent item, string cropAlias, string property = "image", string imgclass = "", bool recurse = false, bool lazy = false, string urlAppend = "", string id = "", string prepend = "", string append = "")
+        public static IHtmlString ShowImagesCropped(this IPublishedContent item, string cropAlias, string property = "image", string imgclass = "", bool recurse = false, bool lazy = false, string urlAppend = null, string id = null, string prepend = null, string append = null)
         {
             var htmlResult = new StringBuilder();
             if (item.HasValue(property, recurse: recurse))
             {
-                var htmlPrepend = new HtmlString(prepend);
-                var htmlAppend = new HtmlString(append);
-                
                 var imagesList = item.GetPropertyValue<string>(property, recurse: recurse).Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries).Select(int.Parse);
                 var umbracoHelper = new UmbracoHelper(UmbracoContext.Current);
                 var imagesCollection = umbracoHelper.TypedMedia(imagesList).Where(x => x != null);
@@ -65,9 +62,9 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
                 foreach (var imageItem in imagesCollection)
                 {
                     var url = imageItem.GetCropUrl(cropAlias: cropAlias, imageCropMode: ImageCropMode.Crop, useCropDimensions: true) + urlAppend;
-                    htmlResult.Append(htmlPrepend);
+                    htmlResult.Append(prepend);
                     htmlResult.Append($"<img {attribute}=\"{url}\" id=\"{id}\" class=\"{imgclass}\" alt=\"{imageItem.GetPropertyValue("altText")}\" title=\"{imageItem.GetPropertyValue("altText")}\" />");
-                    htmlResult.Append(htmlAppend);
+                    htmlResult.Append(append);
                 }
             }
             return new HtmlString(htmlResult.ToString());
