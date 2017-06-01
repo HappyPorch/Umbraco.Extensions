@@ -21,15 +21,10 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
         /// <summary>
         /// (typed) Works with Multinode Treepicker. 
         /// </summary>
-        public static IEnumerable<int> GetNodes(this IPublishedContent content, string property, bool recursive = false)
+        public static IEnumerable<IPublishedContent> GetNodesTyped(this IPublishedContent content, string property, bool recursive = false)
         {
-            string panelsAsString = content.GetPropertyValue(property, recursive) as string;
-            int[] templates = null;
-            if (!string.IsNullOrEmpty(panelsAsString))
-            {
-                templates = Array.ConvertAll(panelsAsString.Split(','), s => int.Parse(s));
-            }
-            return templates ?? Enumerable.Empty<int>();
+            var items = content.GetPropertyValue<IEnumerable<IPublishedContent>>(property, recursive);
+            return items;
         }
 
         /// <summary>
