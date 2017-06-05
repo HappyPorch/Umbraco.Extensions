@@ -40,8 +40,9 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
         /// <param name="recurse"></param>
         /// <param name="prepend"></param>
         /// <param name="append"></param>
+        /// <param name="content"></param>
         /// <returns></returns>
-        public static IHtmlString ShowLinks(this IPublishedContent item, string property = "link", string extraClass = "", bool recurse = false, string prepend = "", string append = "")
+        public static IHtmlString ShowLinks(this IPublishedContent item, string property = "link", string extraClass = "", bool recurse = false, string prepend = "", string append = "", string content = "")
         {
             var htmlResult = new StringBuilder();
             if (item != null && item.HasValue(property, recurse))
@@ -53,7 +54,7 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
                     {
                         var currentPage = item.Id == link.Id ? "current" : string.Empty;
                         htmlResult.Append(prepend);
-                        htmlResult.Append($"<a href=\"{link.Url}\" target=\"{link.Target}\" class=\"{extraClass} {currentPage}\">{link.Name}</a>");
+                        htmlResult.Append($"<a href=\"{link.Url}\" target=\"{link.Target}\" class=\"{extraClass} {currentPage}\">{(content == "" ? link.Name : content)}</a>");
                         htmlResult.Append(append);
                     }
                 }
@@ -111,6 +112,29 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
                 }
             }
             return content;
+        }
+
+        /// <summary>
+        /// Works for SingleUrlPicker. Shows the href and target attributes of the link.
+        /// </summary>
+        /// <param name="item"></param>
+        /// <param name="property"></param>
+        /// <param name="recursive"></param>
+        /// <returns></returns>
+        public static IHtmlString ShowLinkWithoutTags(this IPublishedContent item, string property = "link", bool recursive = false)
+        {
+            if (item != null && item.HasValue(property, recursive))
+            {
+                var links = item.GetPropertyValue<MultiUrls>(property, recursive);
+                if (links != null && links.Any())
+                {
+                    var link = links.First();
+                    var markup = $"href=\"{link.Url}\" target=\"{link.Target}\"";
+                    return new HtmlString(markup);
+                }
+            }
+            var markup2 = $"href=\"#\"";
+            return new HtmlString(markup2);
         }
     }
 }

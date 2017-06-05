@@ -1,0 +1,130 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Web;
+using System.Web.Mvc;
+using RJP.MultiUrlPicker.Models;
+using Umbraco.Core.Models;
+using Umbraco.Web;
+
+namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
+{
+    public static class Menus
+    {
+        /// <summary>
+        /// Displays a menu from a set of links in a MultiUrlPicker.
+        /// </summary>
+        /// <param name="content">The page with the MultiUrlPicker property.</param>
+        /// <param name="property"></param>
+        /// <param name="showChildren"></param>
+        /// <param name="ulInnerClass"></param>
+        /// <param name="addParentToSubMenu"></param>
+        /// <returns></returns>
+        public static IHtmlString ShowMenuSimple(this IPublishedContent content, string property, bool showChildren = false, string ulInnerClass = null, bool addParentToSubMenu = false)
+        {
+            var umbracoHelper = new UmbracoHelper(UmbracoContext.Current);
+            var links = content.GetLinks(property);
+            var markup = new StringBuilder();
+            foreach (var link in links)
+            {
+                if (link == null) { continue; }
+                if (link.Type == LinkType.Content)
+                {
+                    var linkContent = umbracoHelper.TypedContent(link.Id);
+                    var linkIsHidden = linkContent != null && linkContent.GetPropertyValue<bool>("umbracoNaviHide");
+                    if (linkIsHidden)
+                    {
+                        continue;
+                    }
+                    markup.Append($"<li class=\"{(content.Id == link.Id ? "current" : null)}\">");
+
+                    markup.Append($"<a target=\"{link.Target}\" href=\"{link.Url}\">{link.Name}</a>");
+                    if (showChildren && linkContent.Children.Any())
+                    {
+                        markup.Append($"<ul class=\"{ulInnerClass}\">");
+                        if (addParentToSubMenu)
+                        {
+                            markup.Append($"<li><a target=\"{ link.Target}\" href=\"{ link.Url}\">{link.Name}</a></li>");
+                        }
+                        foreach (var child in linkContent.ChildrenVisible())
+                        {
+                            var childIsHidden = child.GetPropertyValue<bool>("umbracoNaviHide");
+                            if (childIsHidden)
+                            {
+                                continue;
+                            }
+                            markup.Append($"<li><a href=\"{child.Url}\">{child.Name}</a></li>");
+                        }
+                        markup.Append("</ul>");
+                    }
+                    markup.Append("</li>");
+                }
+                else if (link.Type == LinkType.External)
+                {
+                    markup.Append($"<li><a href=\"{link.Url}\">{link.Name}</a></li>");
+
+                }
+            }
+            return new HtmlString(markup.ToString());
+        }
+
+        /// <summary>
+        /// Displays a menu from a set of links in a Nested Content property.
+        /// </summary>
+        /// <param name="content"></param>
+        /// <param name="property"></param>
+        /// <param name="showChildren"></param>
+        /// <param name="ulInnerClass"></param>
+        /// <param name="addParentToSubMenu"></param>
+        /// <returns></returns>
+        public static IHtmlString ShowNestedContentMenu(this IPublishedContent content, string property, bool showChildren = false, string ulInnerClass = null, bool addParentToSubMenu = false)
+        {
+            var mainMenu = content.GetNestedContent(property);
+            var umbracoHelper = new UmbracoHelper(UmbracoContext.Current);
+            var markup = new StringBuilder();
+            foreach (var item in mainMenu)
+            {
+                var link = item.GetLink("link");
+                if (link == null) { continue; }
+                if (link.Type == LinkType.Content)
+                {
+                    var linkContent = umbracoHelper.TypedContent(link.Id);
+                    var linkIsHidden = content != null && content.GetPropertyValue<bool>("umbracoNaviHide");
+                    if (linkIsHidden)
+                    {
+                        continue;
+                    }
+                    markup.Append($"<li class=\"{(content.Id == link.Id ? "current" : null)}\">");
+                    markup.Append($"<a target=\"{link.Target}\" href=\"{link.Url}\">{link.Name}</a>");
+                    if (showChildren && linkContent.Children.Any())
+                    {
+                        markup.Append($"<ul class=\"{ulInnerClass}\">");
+                        if (addParentToSubMenu)
+                        {
+                            markup.Append($"<li><a target=\"{ link.Target}\" href=\"{ link.Url}\">{link.Name}</a></li>");
+                        }
+                        foreach (var child in linkContent.ChildrenVisible())
+                        {
+                            var childIsHidden = child.GetPropertyValue<bool>("umbracoNaviHide");
+                            if (childIsHidden)
+                            {
+                                continue;
+                            }
+                            markup.Append($"<li><a href=\"{child.Url}\">{child.Name}</a></li>");
+                        }
+                        markup.Append("</ul>");
+                    }
+                    markup.Append("</li>");
+                }
+                else if (link.Type == LinkType.External)
+                {
+                    markup.Append($"<li><a href=\"{link.Url}\">{link.Name}</a></li>");
+
+                }
+            }
+            return new HtmlString(markup.ToString());
+        }
+    }
+}

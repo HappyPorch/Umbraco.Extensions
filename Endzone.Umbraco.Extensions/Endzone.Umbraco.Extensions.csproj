@@ -260,6 +260,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PublishedContentExtensions\ContentDate.cs" />
     <Compile Include="PublishedContentExtensions\LanguageVariants .cs" />
+    <Compile Include="PublishedContentExtensions\Menus.cs" />
     <Compile Include="PublishedContentExtensions\MultiUrlPicker.cs" />
     <Compile Include="PublishedContentExtensions\Media.cs" />
     <Compile Include="PublishedContentExtensions\PartialViews.cs" />

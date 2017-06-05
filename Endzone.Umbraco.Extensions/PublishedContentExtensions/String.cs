@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Web;
 using Umbraco.Core.Models;
 using Umbraco.Web;
@@ -50,6 +51,23 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
             var text = content.GetStringSplitByLines(property);
             var htmlText = string.Join("<br />", text);
             return  new HtmlString(htmlText);
+        }
+
+        /// <summary>
+        /// Turns lines in regular text into <li> elements
+        /// </summary>
+        /// <param name="content"></param>
+        /// <param name="property"></param>
+        /// <returns></returns>
+        public static IHtmlString ShowBulletList(this IPublishedContent content, string property = "text")
+        {
+            var text = content.GetStringSplitByLines(property);
+            var markup = new StringBuilder();
+            foreach (var line in text)
+            {
+                markup.Append($"<li>{line}</li>");
+            }
+            return new HtmlString(markup.ToString());
         }
     }
 }

@@ -13,12 +13,12 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
     public static class Media
     {
 
-        public static IEnumerable<IPublishedContent> GetMultipleTypedMedia(this IPublishedContent content, string propertyName)
+        public static IEnumerable<IPublishedContent> GetMultipleTypedMedia(this IPublishedContent content, string property)
         {
-            if (!content.HasValue(propertyName))
+            if (!content.HasValue(property))
                 return Enumerable.Empty<IPublishedContent>();
 
-            var imageIds = content.GetPropertyValue<string>(propertyName).Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
+            var imageIds = content.GetPropertyValue<string>(property).Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
             var umbracoHelper = new UmbracoHelper(UmbracoContext.Current);
 
             return umbracoHelper.TypedMedia(imageIds);
@@ -36,7 +36,7 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
         }
 
         /// <summary>
-        /// Works for MultipleMediaPicker where the image media is of type Image Cropper (as opposed to upload)
+        /// Works for MultipleMediaPicker where the image media is of type Image Cropper (as opposed to upload). Crops the images to the size specified in the crop.
         /// </summary>
         /// <param name="item"></param>
         /// <param name="cropAlias"></param>
@@ -68,6 +68,63 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
                 }
             }
             return new HtmlString(htmlResult.ToString());
+        }
+
+        /// <summary>
+        /// Works for MultipleMediaPicker. Shows images in their original size.
+        /// </summary>
+        /// <param name="item"></param>
+        /// <param name="property"></param>
+        /// <param name="imgclass"></param>
+        /// <param name="recurse"></param>
+        /// <param name="lazy"></param>
+        /// <param name="urlAppend"></param>
+        /// <param name="id"></param>
+        /// <param name="prepend"></param>
+        /// <param name="append"></param>
+        /// <returns></returns>
+        public static IHtmlString ShowImages(this IPublishedContent item, string property = "image", string imgclass = "", bool recurse = false, bool lazy = false, string urlAppend = null, string id = null, string prepend = null, string append = null)
+        {
+            var htmlResult = new StringBuilder();
+            if (item.HasValue(property, recurse: recurse))
+            {
+                var imagesList = item.GetPropertyValue<string>(property, recurse: recurse).Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries).Select(int.Parse);
+                var umbracoHelper = new UmbracoHelper(UmbracoContext.Current);
+                var imagesCollection = umbracoHelper.TypedMedia(imagesList).Where(x => x != null);
+                var attribute = lazy ? "data-lazy" : "src";
+
+                foreach (var imageItem in imagesCollection)
+                {
+                    var url = imageItem.Url + urlAppend;
+                    htmlResult.Append(prepend);
+                    htmlResult.Append($"<img {attribute}=\"{url}\" id=\"{id}\" class=\"{imgclass}\" alt=\"{imageItem.GetPropertyValue("altText")}\" title=\"{imageItem.GetPropertyValue("altText")}\" />");
+                    htmlResult.Append(append);
+                }
+            }
+            return new HtmlString(htmlResult.ToString());
+        }
+
+        /// <summary>
+        /// Works for MultipleMediaPicker where the image media is of type Image Cropper(as opposed to upload).
+        /// </summary>
+        /// <param name="item"></param>
+        /// <param name="cropAlias"></param>
+        /// <param name="property"></param>
+        /// <param name="recurse"></param>
+        /// <param name="append"></param>
+        /// <returns></returns>
+        public static IHtmlString ShowImageUrlCropped(this IPublishedContent item, string cropAlias, string property = "image", bool recurse = false, string append = "")
+        {
+            if (item.HasValue(property, recurse: recurse))
+            {
+                var imagesList = item.GetPropertyValue<string>(property, recurse: recurse).Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries).Select(int.Parse);
+                var umbracoHelper = new UmbracoHelper(UmbracoContext.Current);
+                var image = umbracoHelper.TypedMedia(imagesList).FirstOrDefault(x => x != null);
+
+                var url = image.GetCropUrl(cropAlias: cropAlias, imageCropMode: ImageCropMode.Crop, useCropDimensions: true) + append;
+                return  new HtmlString(url);
+            }
+            return new HtmlString(string.Empty);
         }
     }
 }
