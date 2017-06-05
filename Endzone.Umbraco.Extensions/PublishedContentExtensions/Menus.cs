@@ -78,8 +78,9 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
         /// <param name="showChildren"></param>
         /// <param name="ulInnerClass"></param>
         /// <param name="addParentToSubMenu"></param>
+        /// <param name="useCustomLinkText">Overrides the link text with the `link text` field</param>
         /// <returns></returns>
-        public static IHtmlString ShowNestedContentMenu(this IPublishedContent content, string property, bool showChildren = false, string ulInnerClass = null, bool addParentToSubMenu = false)
+        public static IHtmlString ShowNestedContentMenu(this IPublishedContent content, string property, bool showChildren = false, string ulInnerClass = null, bool addParentToSubMenu = false, bool useCustomLinkText = false)
         {
             var mainMenu = content.GetNestedContent(property);
             var umbracoHelper = new UmbracoHelper(UmbracoContext.Current);
@@ -96,8 +97,9 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
                     {
                         continue;
                     }
+                    var linkText = useCustomLinkText ? item.GetPropertyValue<string>("linkText") : link.Name;
                     markup.Append($"<li class=\"{(content.Id == link.Id ? "current" : null)}\">");
-                    markup.Append($"<a target=\"{link.Target}\" href=\"{link.Url}\">{link.Name}</a>");
+                    markup.Append($"<a target=\"{link.Target}\" href=\"{link.Url}\">{linkText}</a>");
                     if (showChildren && linkContent.Children.Any())
                     {
                         markup.Append($"<ul class=\"{ulInnerClass}\">");
