@@ -8,7 +8,6 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
 {
     public static class Collections
     {
-
         /// <summary>
         /// (typed) Use for NestedContent properties 
         /// </summary>
@@ -59,6 +58,22 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
         }
 
         /// <summary>
+        /// Gets all visible elements in the collection (using umbracoNaviHide)
+        /// </summary>
+        /// <param name="content"></param>
+        /// <param name="documentTypeAlias">optional</param>
+        /// <returns></returns>
+        public static IEnumerable<IPublishedContent> Visible(this IEnumerable<IPublishedContent> content, string documentTypeAlias = null)
+        {
+            content = content.Where(o => o.GetPropertyValue<bool>("umbracoNaviHide") != true);
+            if (documentTypeAlias != null)
+            {
+                content = content.Where(d => d.DocumentTypeAlias == documentTypeAlias);
+            }
+            return content;
+        }
+
+        /// <summary>
         /// Gets all visible siblings (using umbracoNaviHide)
         /// </summary>
         /// <param name="content"></param>
@@ -88,6 +103,19 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
                          group item by i++ % parts into part
                          select part.AsEnumerable();
             return splits;
+        }
+
+        /// <summary>
+        /// Returns the website settings node
+        /// </summary>
+        /// <param name="content"></param>
+        /// <returns></returns>
+        public static IPublishedContent GetWebsiteSettings(this IPublishedContent content)
+        {
+            var umbracoHelper = new UmbracoHelper(UmbracoContext.Current);
+            var homepage = content.AncestorOrSelf(1);
+            var link = homepage.GetLink("websiteSettings");
+            return umbracoHelper.TypedContent(link.Id);
         }
     }
 }
