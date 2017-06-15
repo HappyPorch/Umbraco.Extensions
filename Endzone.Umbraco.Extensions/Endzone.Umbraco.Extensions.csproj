@@ -258,6 +258,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="PublishedContentExtensions\Configuration.cs" />
     <Compile Include="PublishedContentExtensions\ContentDate.cs" />
     <Compile Include="PublishedContentExtensions\LanguageVariants .cs" />
     <Compile Include="PublishedContentExtensions\Menus.cs" />
