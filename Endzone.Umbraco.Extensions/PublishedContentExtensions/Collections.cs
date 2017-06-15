@@ -8,7 +8,6 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
 {
     public static class Collections
     {
-
         /// <summary>
         /// (typed) Use for NestedContent properties 
         /// </summary>
@@ -56,6 +55,22 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
                 descendants = descendants.Where(d => d.DocumentTypeAlias == DocumentTypeAlias);
             }
             return descendants;
+        }
+
+        /// <summary>
+        /// Gets all visible elements in the collection (using umbracoNaviHide)
+        /// </summary>
+        /// <param name="content"></param>
+        /// <param name="documentTypeAlias">optional</param>
+        /// <returns></returns>
+        public static IEnumerable<IPublishedContent> Visible(this IEnumerable<IPublishedContent> content, string documentTypeAlias = null)
+        {
+            content = content.Where(o => o.GetPropertyValue<bool>("umbracoNaviHide") != true);
+            if (documentTypeAlias != null)
+            {
+                content = content.Where(d => d.DocumentTypeAlias == documentTypeAlias);
+            }
+            return content;
         }
 
         /// <summary>

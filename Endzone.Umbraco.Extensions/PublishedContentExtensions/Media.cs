@@ -105,26 +105,31 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
         }
 
         /// <summary>
-        /// Works for MultipleMediaPicker where the image media is of type Image Cropper(as opposed to upload).
+        /// Works for MultipleMediaPicker where the image media is of type Image Cropper(as opposed to upload). Shows the image's urls in their cropped version.
         /// </summary>
         /// <param name="item"></param>
         /// <param name="cropAlias"></param>
         /// <param name="property"></param>
         /// <param name="recurse"></param>
+        /// <param name="prepend"></param>
         /// <param name="append"></param>
         /// <returns></returns>
-        public static IHtmlString ShowImageUrlCropped(this IPublishedContent item, string cropAlias, string property = "image", bool recurse = false, string append = "")
+        public static IHtmlString ShowImageUrlsCropped(this IPublishedContent item, string cropAlias, string property = "image", bool recurse = false, string prepend = null, string append = null)
         {
+            var htmlResult = new StringBuilder();
             if (item.HasValue(property, recurse: recurse))
             {
                 var imagesList = item.GetPropertyValue<string>(property, recurse: recurse).Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries).Select(int.Parse);
                 var umbracoHelper = new UmbracoHelper(UmbracoContext.Current);
-                var image = umbracoHelper.TypedMedia(imagesList).FirstOrDefault(x => x != null);
+                var imagesCollection = umbracoHelper.TypedMedia(imagesList).Where(x => x != null);
 
-                var url = image.GetCropUrl(cropAlias: cropAlias, imageCropMode: ImageCropMode.Crop, useCropDimensions: true) + append;
-                return  new HtmlString(url);
+                foreach (var image in imagesCollection)
+                {
+                    var url = prepend + image.GetCropUrl(cropAlias: cropAlias, imageCropMode: ImageCropMode.Crop, useCropDimensions: true) + append;
+                    htmlResult.Append(url);
+                }
             }
-            return new HtmlString(string.Empty);
+            return new HtmlString(htmlResult.ToString());
         }
     }
 }
