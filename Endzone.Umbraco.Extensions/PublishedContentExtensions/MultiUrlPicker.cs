@@ -15,11 +15,19 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
 
         /// <summary>
         /// (typed) Works for SingleUrlPicker and MultiUrlPicker 
+        ///  returns empty List of Link if property not found or empty 
         /// </summary>
         public static IEnumerable<Link> GetLinks(this IPublishedContent content, string property, bool recursive = false)
         {
             var list = content.GetPropertyValue<IEnumerable<Link>>(property, recursive);
-            return list ?? Enumerable.Empty<Link>();
+            //as of v2.0.0 RJP.MultiURLPicker returns a null IEnumerable when max number of items set to 1
+            //  so to support both in this method we need to check for null and if so check for a simgle Link
+            if (list == null)
+            {
+                var singleUrl = content.GetPropertyValue<Link>(property, recursive);
+                list = (singleUrl==null) ? Enumerable.Empty<Link>() : new List<Link> { singleUrl };
+            }
+            return list;
         }
 
         /// <summary>
@@ -27,7 +35,7 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
         /// </summary>
         public static Link GetLink(this IPublishedContent content, string property, bool recursive = false)
         {
-            var list = content.GetPropertyValue<IEnumerable<Link>>(property, recursive) ?? Enumerable.Empty<Link>();
+            var list = content.GetLinks(property, recursive);
             return list.FirstOrDefault();
         }
 
