@@ -20,6 +20,15 @@ namespace Endzone.Umbraco.Extensions
             return new Uri(url).SetParameter(paramName, value.ToString()).ToString();
         }
 
+        public static string AddParameterToRelativeUrl(this string url, string paramName, string paramValue)
+        {
+            if (url.Contains("?"))
+            {
+                return url + "&" + paramName + "=" + paramValue;
+            }
+            return url + "?" + paramName + "=" + paramValue;
+        }
+
         private static Uri SetParameter(this Uri url, string paramName, string value)
         {
             var queryParts = HttpUtility.ParseQueryString(url.Query);

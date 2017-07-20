@@ -100,7 +100,7 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
                 foreach (var imageItem in imagesCollection)
                 {
                     var url = imageItem.Url + urlAppend;
-                    url = url.AddParameterToUrl("quality", imageQuality.ToString());
+                    url = url.AddParameterToRelativeUrl("quality", imageQuality.ToString());
                     htmlResult.Append(prepend);
                     htmlResult.Append($"<img {attribute}=\"{url}\" id=\"{id}\" class=\"{imgclass}\" alt=\"{imageItem.GetPropertyValue("altText")}\" title=\"{imageItem.GetPropertyValue("altText")}\" />");
                     htmlResult.Append(append);

@@ -268,7 +268,6 @@
     <Compile Include="PublishedContentExtensions\String.cs" />
     <Compile Include="PublishedContentExtensions\Tags.cs" />
     <Compile Include="PublishedContentExtensions\Collections.cs" />
-    <Compile Include="PublishedContentExtensions\URI.cs" />
     <Compile Include="UriExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
