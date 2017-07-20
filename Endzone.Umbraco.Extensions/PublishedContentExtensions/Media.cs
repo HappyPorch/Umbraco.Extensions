@@ -12,6 +12,8 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
 {
     public static class Media
     {
+        //default values
+        private static int _imageQuality = 100;
 
         public static IEnumerable<IPublishedContent> GetMultipleTypedMedia(this IPublishedContent content, string property)
         {
@@ -51,6 +53,7 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
         /// <returns></returns>
         public static IHtmlString ShowImagesCropped(this IPublishedContent item, string cropAlias, string property = "image", string imgclass = "", bool recurse = false, bool lazy = false, string urlAppend = null, string id = null, string prepend = null, string append = null)
         {
+            var imageQuality = GetWebsiteImageQuality(item);
             var htmlResult = new StringBuilder();
             if (item.HasValue(property, recurse: recurse))
             {
@@ -61,7 +64,7 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
 
                 foreach (var imageItem in imagesCollection)
                 {
-                    var url = imageItem.GetCropUrl(cropAlias: cropAlias, imageCropMode: ImageCropMode.Crop, useCropDimensions: true) + urlAppend;
+                    var url = imageItem.GetCropUrl(cropAlias: cropAlias, imageCropMode: ImageCropMode.Crop, useCropDimensions: true, quality: imageQuality) + urlAppend;
                     htmlResult.Append(prepend);
                     htmlResult.Append($"<img {attribute}=\"{url}\" id=\"{id}\" class=\"{imgclass}\" alt=\"{imageItem.GetPropertyValue("altText")}\" title=\"{imageItem.GetPropertyValue("altText")}\" />");
                     htmlResult.Append(append);
@@ -85,6 +88,7 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
         /// <returns></returns>
         public static IHtmlString ShowImages(this IPublishedContent item, string property = "image", string imgclass = "", bool recurse = false, bool lazy = false, string urlAppend = null, string id = null, string prepend = null, string append = null)
         {
+            var imageQuality = GetWebsiteImageQuality(item);
             var htmlResult = new StringBuilder();
             if (item.HasValue(property, recurse: recurse))
             {
@@ -96,6 +100,7 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
                 foreach (var imageItem in imagesCollection)
                 {
                     var url = imageItem.Url + urlAppend;
+                    url = url.AddParameterToUrl("quality", imageQuality.ToString());
                     htmlResult.Append(prepend);
                     htmlResult.Append($"<img {attribute}=\"{url}\" id=\"{id}\" class=\"{imgclass}\" alt=\"{imageItem.GetPropertyValue("altText")}\" title=\"{imageItem.GetPropertyValue("altText")}\" />");
                     htmlResult.Append(append);
@@ -116,6 +121,7 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
         /// <returns></returns>
         public static IHtmlString ShowImageUrlsCropped(this IPublishedContent item, string cropAlias, string property = "image", bool recurse = false, string prepend = null, string append = null)
         {
+            var imageQuality = GetWebsiteImageQuality(item);
             var htmlResult = new StringBuilder();
             if (item.HasValue(property, recurse: recurse))
             {
@@ -125,11 +131,24 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
 
                 foreach (var image in imagesCollection)
                 {
-                    var url = prepend + image.GetCropUrl(cropAlias: cropAlias, imageCropMode: ImageCropMode.Crop, useCropDimensions: true) + append;
+                    var url = prepend + image.GetCropUrl(cropAlias: cropAlias, imageCropMode: ImageCropMode.Crop, useCropDimensions: true, quality:imageQuality) + append;
                     htmlResult.Append(url);
                 }
             }
             return new HtmlString(htmlResult.ToString());
+        }
+
+        private static int GetWebsiteImageQuality(IPublishedContent item)
+        {
+            var websiteSettings = item.GetWebsiteSettings();
+            if (websiteSettings == null)
+            {
+                return _imageQuality;
+            }
+            var imageQuality = websiteSettings.HasValue("ImageQuality")
+                ? websiteSettings.GetPropertyValue<int>("imageQuality")
+                : _imageQuality;
+            return imageQuality;
         }
     }
 }
