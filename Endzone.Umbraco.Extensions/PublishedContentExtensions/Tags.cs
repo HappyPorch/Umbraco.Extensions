@@ -23,7 +23,14 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
                 {
                     if (item.HasValue(property))
                     {
-                        taglist.AddRange(item.GetPropertyValue<string[]>(property));
+                        if (item.GetPropertyValue(property) is string)
+                        {
+                            taglist.AddRange(item.GetPropertyValue<string>(property).Split(','));
+                        }
+                        else
+                        {
+                            taglist.AddRange(item.GetPropertyValue<string[]>(property) ?? Enumerable.Empty<string>());
+                        }
                     }
                 }
                 taglist = taglist.OrderBy(i => i).Distinct().ToList();
