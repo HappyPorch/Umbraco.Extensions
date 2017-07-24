@@ -21,9 +21,14 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
             {
                 foreach (var item in content)
                 {
-                    if (item.HasValue(property))
+                    var tags = item.GetPropertyValue(property);
+                    if (tags is string s)
                     {
-                        taglist.AddRange(item.GetPropertyValue<string[]>(property));
+                        taglist.AddRange(s.Split(','));
+                    }
+                    else if (tags is string[] a)
+                    {
+                        taglist.AddRange(a);
                     }
                 }
                 taglist = taglist.OrderBy(i => i).Distinct().ToList();
