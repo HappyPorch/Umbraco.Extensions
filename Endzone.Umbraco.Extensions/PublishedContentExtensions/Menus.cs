@@ -100,12 +100,12 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
                     var linkText = useCustomLinkText ? item.GetPropertyValue<string>("linkText") : link.Name;
                     markup.Append($"<li class=\"{(content.Id == link.Id ? "current" : null)}\">");
                     markup.Append($"<a target=\"{link.Target}\" href=\"{link.Url}\">{linkText}</a>");
-                    var showLinkChildren = showChildren;
-                    if (item.HasValue("showLinkChildren"))
+                    var showLinksChildren = showChildren;
+                    if (item.HasValue("showLinksChildren"))
                     {
-                        showLinkChildren = item.GetPropertyValue<string>("showLinkChildren").ToLower() == "yes";
+                        showLinksChildren = item.GetPropertyValue<string>("showLinksChildren").ToLower() == "yes";
                     }
-                    if (showLinkChildren && linkContent.Children.Any())
+                    if (showLinksChildren && linkContent.Children.Any())
                     {
                         markup.Append($"<ul class=\"{ulInnerClass}\">");
                         if (addParentToSubMenu)
