@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Web;
 using Umbraco.Core.Models;
 using Umbraco.Web;
@@ -111,15 +113,20 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
 
         private static int GetWebsiteImageQuality(IPublishedContent item)
         {
+            //tries to get it from the website settings node
             var websiteSettings = item.GetWebsiteSettings();
-            if (websiteSettings == null)
+            if (websiteSettings != null && websiteSettings.HasValue("ImageQuality"))
             {
-                return ImageQuality;
+                return websiteSettings.GetPropertyValue<int>("imageQuality");
             }
-            var imageQuality = websiteSettings.HasValue("ImageQuality")
-                ? websiteSettings.GetPropertyValue<int>("imageQuality")
-                : ImageQuality;
-            return imageQuality;
+            // tries to get it from web.config
+            var regex = new Regex("^(100|[1-9][0-9]|[1-9])$");
+            var imageQuality = ConfigurationManager.AppSettings["websiteImageQuality"];
+            if (regex.IsMatch(imageQuality))
+            {
+                return int.Parse(imageQuality);
+            }
+            return ImageQuality;
         }
     }
 }
