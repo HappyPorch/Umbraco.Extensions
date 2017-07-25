@@ -84,6 +84,8 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
         {
             var mainMenu = content.GetNestedContent(property);
             var umbracoHelper = new UmbracoHelper(UmbracoContext.Current);
+            var umbracoContext = umbracoHelper.UmbracoContext;
+            var currentPage = umbracoContext.ContentCache.GetById(umbracoContext.PageId.Value);
             var markup = new StringBuilder();
             foreach (var item in mainMenu)
             {
@@ -98,28 +100,35 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
                         continue;
                     }
                     var linkText = useCustomLinkText ? item.GetPropertyValue<string>("linkText") : link.Name;
-                    markup.Append($"<li class=\"{(content.Id == link.Id ? "current" : null)}\">");
+                    markup.Append($"<li class=\"{(currentPage.IsDescendantOrSelf(linkContent) ? "current" : null)}\">");
                     markup.Append($"<a target=\"{link.Target}\" href=\"{link.Url}\">{linkText}</a>");
                     var showLinksChildren = showChildren;
                     if (item.HasValue("showLinksChildren"))
                     {
                         showLinksChildren = item.GetPropertyValue<string>("showLinksChildren").ToLower() == "yes";
                     }
-                    if (showLinksChildren && linkContent.Children.Any())
+                    if (showLinksChildren)
                     {
                         markup.Append($"<ul class=\"{ulInnerClass}\">");
-                        if (addParentToSubMenu)
+                        if (item.HasValue("tagsProperty"))
                         {
-                            markup.Append($"<li><a target=\"{ link.Target}\" href=\"{ link.Url}\">{link.Name}</a></li>");
-                        }
-                        foreach (var child in linkContent.ChildrenVisible())
-                        {
-                            var childIsHidden = child.GetPropertyValue<bool>("umbracoNaviHide");
-                            if (childIsHidden)
+                            var tagsProperty = item.GetPropertyValue<string>("tagsProperty");
+                            var tags = linkContent.ChildrenVisible().GetAllTags(tagsProperty);
+                            foreach (var tag in tags)
                             {
-                                continue;
+                                markup.Append($"<li><a href=\"{linkContent.Url}#{tag.SanitizeTagName()}\">{tag}</a></li>");
                             }
-                            markup.Append($"<li><a href=\"{child.Url}\">{child.Name}</a></li>");
+                        }
+                        else if (linkContent.ChildrenVisible().Any())
+                        {
+                            if (addParentToSubMenu)
+                            {
+                                markup.Append($"<li><a target=\"{link.Target}\" href=\"{link.Url}\">{link.Name}</a></li>");
+                            }
+                            foreach (var child in linkContent.ChildrenVisible())
+                            {
+                                markup.Append($"<li class=\"{(currentPage.IsDescendantOrSelf(child) ? "current" : null)}\"><a href=\"{child.Url}\">{child.Name}</a></li>");
+                            }
                         }
                         markup.Append("</ul>");
                     }
@@ -128,7 +137,6 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
                 else if (link.Type == LinkType.External)
                 {
                     markup.Append($"<li><a href=\"{link.Url}\">{link.Name}</a></li>");
-
                 }
             }
             return new HtmlString(markup.ToString());

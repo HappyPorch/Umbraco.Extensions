@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Umbraco.Core.Models;
 using Umbraco.Web;
 
@@ -61,6 +62,18 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
                 }
             }
             return docList;
+        }
+
+        /// <summary>
+        /// Removes unwanted characters from tag name so that it works with javascript plugins
+        /// </summary>
+        /// <param name="tagName"></param>
+        /// <returns></returns>
+        public static string SanitizeTagName(this string tagName)
+        {
+            tagName = tagName ?? string.Empty;
+            Regex rgx = new Regex("[^a-zA-Z, ]");
+            return rgx.Replace(tagName, "").ToLower().Replace(" ", "-");
         }
     }
 }
