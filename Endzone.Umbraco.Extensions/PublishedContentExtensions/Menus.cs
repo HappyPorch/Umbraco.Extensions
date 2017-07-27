@@ -25,6 +25,8 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
         public static IHtmlString ShowMenuSimple(this IPublishedContent content, string property, bool showChildren = false, string ulInnerClass = null, bool addParentToSubMenu = false)
         {
             var umbracoHelper = new UmbracoHelper(UmbracoContext.Current);
+            var umbracoContext = umbracoHelper.UmbracoContext;
+            var currentPage = umbracoContext.ContentCache.GetById(umbracoContext.PageId.Value);
             var links = content.GetLinks(property);
             var markup = new StringBuilder();
             foreach (var link in links)
@@ -38,8 +40,7 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
                     {
                         continue;
                     }
-                    markup.Append($"<li class=\"{(content.Id == link.Id ? "current" : null)}\">");
-
+                    markup.Append($"<li class=\"{(currentPage.IsDescendantOrSelf(linkContent) ? "current" : null)}\">");
                     markup.Append($"<a target=\"{link.Target}\" href=\"{link.Url}\">{link.Name}</a>");
                     if (showChildren && linkContent.Children.Any())
                     {
@@ -55,7 +56,7 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
                             {
                                 continue;
                             }
-                            markup.Append($"<li><a href=\"{child.Url}\">{child.Name}</a></li>");
+                            markup.Append($"<li class=\"{(currentPage.IsDescendantOrSelf(child) ? "current" : null)}\"><a href=\"{child.Url}\">{child.Name}</a></li>");
                         }
                         markup.Append("</ul>");
                     }
@@ -84,6 +85,8 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
         {
             var mainMenu = content.GetNestedContent(property);
             var umbracoHelper = new UmbracoHelper(UmbracoContext.Current);
+            var umbracoContext = umbracoHelper.UmbracoContext;
+            var currentPage = umbracoContext.ContentCache.GetById(umbracoContext.PageId.Value);
             var markup = new StringBuilder();
             foreach (var item in mainMenu)
             {
@@ -98,7 +101,7 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
                         continue;
                     }
                     var linkText = useCustomLinkText ? item.GetPropertyValue<string>("linkText") : link.Name;
-                    markup.Append($"<li class=\"{(content.Id == link.Id ? "current" : null)}\">");
+                    markup.Append($"<li class=\"{(currentPage.IsDescendantOrSelf(linkContent) ? "current" : null)}\">");
                     markup.Append($"<a target=\"{link.Target}\" href=\"{link.Url}\">{linkText}</a>");
                     var showLinksChildren = showChildren;
                     if (item.HasValue("showLinksChildren"))
@@ -119,7 +122,7 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
                             {
                                 continue;
                             }
-                            markup.Append($"<li><a href=\"{child.Url}\">{child.Name}</a></li>");
+                            markup.Append($"<li class=\"{(currentPage.IsDescendantOrSelf(child) ? "current" : null)}\"><a href=\"{child.Url}\">{child.Name}</a></li>");
                         }
                         markup.Append("</ul>");
                     }
