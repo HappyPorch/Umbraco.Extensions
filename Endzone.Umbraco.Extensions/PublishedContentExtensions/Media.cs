@@ -122,7 +122,7 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
             // tries to get it from web.config
             var regex = new Regex("^(100|[1-9][0-9]|[1-9])$");
             var imageQuality = ConfigurationManager.AppSettings["websiteImageQuality"];
-            if (regex.IsMatch(imageQuality))
+            if (imageQuality != null && regex.IsMatch(imageQuality))
             {
                 return int.Parse(imageQuality);
             }
