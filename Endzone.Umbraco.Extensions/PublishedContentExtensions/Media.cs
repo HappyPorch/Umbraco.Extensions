@@ -16,12 +16,12 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
         //default values
         private const int ImageQuality = 100;
 
-        public static IEnumerable<IPublishedContent> GetMultipleTypedMedia(this IPublishedContent content, string property)
+        public static IEnumerable<IPublishedContent> GetMultipleTypedMedia(this IPublishedContent content, string property, bool recursive = false)
         {
             if (!content.HasValue(property))
                 return Enumerable.Empty<IPublishedContent>();
 
-            var imageIds = content.GetPropertyValue<string>(property).Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries);
+            var imageIds = content.GetPropertyValue<string>(property, recurse: recursive).Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries);
             var umbracoHelper = new UmbracoHelper(UmbracoContext.Current);
 
             return umbracoHelper.TypedMedia(imageIds);
