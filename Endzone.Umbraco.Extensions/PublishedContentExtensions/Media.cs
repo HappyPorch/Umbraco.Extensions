@@ -41,7 +41,7 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
         /// <summary>
         /// Works for MultipleMediaPicker where the image media is of type Image Cropper (as opposed to upload). Crops the images to the size specified in the crop.
         /// </summary>
-        public static IHtmlString ShowImagesCropped(this IPublishedContent item, string cropAlias, string property = "image", string imgclass = "", bool recurse = false, bool lazy = false, string urlAppend = null, string id = null, string prepend = null, string append = null)
+        public static IHtmlString ShowImagesCropped(this IPublishedContent item, string cropAlias, string property = "image", string imgclass = "", bool recurse = false, bool lazy = false, string urlAppend = null, string id = null, string prepend = null, string append = null, string altText = "altText")
         {
             var imageQuality = GetWebsiteImageQuality(item);
             var htmlResult = new StringBuilder();
@@ -56,7 +56,7 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
                 {
                     var url = imageItem.GetCropUrl(cropAlias: cropAlias, imageCropMode: ImageCropMode.Crop, useCropDimensions: true, quality: imageQuality) + urlAppend;
                     htmlResult.Append(prepend);
-                    htmlResult.Append($"<img {attribute}=\"{url}\" id=\"{id}\" class=\"{imgclass}\" alt=\"{imageItem.GetPropertyValue("altText")}\" title=\"{imageItem.GetPropertyValue("altText")}\" />");
+                    htmlResult.Append($"<img {attribute}=\"{url}\" id=\"{id}\" class=\"{imgclass}\" alt=\"{imageItem.GetPropertyValue(altText)}\" title=\"{imageItem.GetPropertyValue(altText)}\" />");
                     htmlResult.Append(append);
                 }
             }
@@ -66,7 +66,7 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
         /// <summary>
         /// Works for MultipleMediaPicker. Shows images in their original size.
         /// </summary>
-        public static IHtmlString ShowImages(this IPublishedContent item, string property = "image", string imgclass = "", bool recurse = false, bool lazy = false, string urlAppend = null, string id = null, string prepend = null, string append = null)
+        public static IHtmlString ShowImages(this IPublishedContent item, string property = "image", string imgclass = "", bool recurse = false, bool lazy = false, string urlAppend = null, string id = null, string prepend = null, string append = null, string altText = "altText")
         {
             var imageQuality = GetWebsiteImageQuality(item);
             var htmlResult = new StringBuilder();
@@ -82,7 +82,7 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
                     var url = imageItem.Url + urlAppend;
                     url = url.SetUrlParameter("quality", imageQuality);
                     htmlResult.Append(prepend);
-                    htmlResult.Append($"<img {attribute}=\"{url}\" id=\"{id}\" class=\"{imgclass}\" alt=\"{imageItem.GetPropertyValue("altText")}\" title=\"{imageItem.GetPropertyValue("altText")}\" />");
+                    htmlResult.Append($"<img {attribute}=\"{url}\" id=\"{id}\" class=\"{imgclass}\" alt=\"{imageItem.GetPropertyValue(altText)}\" title=\"{imageItem.GetPropertyValue(altText)}\" />");
                     htmlResult.Append(append);
                 }
             }
@@ -104,7 +104,7 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
 
                 foreach (var image in imagesCollection)
                 {
-                    var url = prepend + image.GetCropUrl(cropAlias: cropAlias, imageCropMode: ImageCropMode.Crop, useCropDimensions: true, quality:imageQuality) + append;
+                    var url = prepend + image.GetCropUrl(cropAlias: cropAlias, imageCropMode: ImageCropMode.Crop, useCropDimensions: true, quality: imageQuality) + append;
                     htmlResult.Append(url);
                 }
             }
