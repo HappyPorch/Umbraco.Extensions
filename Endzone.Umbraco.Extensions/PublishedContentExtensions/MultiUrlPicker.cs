@@ -53,7 +53,7 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
             var linksContent = new List<IPublishedContent>();
             foreach (var link in links)
             {
-                if (link != null)
+                if (link != null && link.Type == LinkType.Content)
                 {
                     linksContent.Add(umbracoHelper.TypedContent(link.Id));
                 }
@@ -71,7 +71,7 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
         public static IPublishedContent GetLinkContent(this IPublishedContent content, string property, bool recursive = false)
         {
             var linksContent = content.GetLinksContent(property, recursive);
-            return linksContent.Any() ? linksContent.First() : default(IPublishedContent);
+            return linksContent.FirstOrDefault();
         }
 
         /// <summary>
