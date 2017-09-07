@@ -40,7 +40,7 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
         }
 
         /// <summary>
-        /// Gets the links as a collection of IPublishedContent. Check for null.
+        /// Gets the links as a collection of IPublishedContent.
         /// </summary>
         /// <param name="content"></param>
         /// <param name="property"></param>
