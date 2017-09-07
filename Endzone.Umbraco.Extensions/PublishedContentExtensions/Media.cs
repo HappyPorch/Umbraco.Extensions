@@ -37,6 +37,7 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
                 return umbracoHelper.TypedMedia(imageIds);
             }
 
+            // fallback in case value was neither a list or string
             return Enumerable.Empty<IPublishedContent>();
         }
 
@@ -55,6 +56,7 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
                 return umbracoHelper.TypedMedia(contentValue.ToString());
             }
 
+            // fallback in case value was neither IPublishedContent or string
             return null;
         }
 
