@@ -40,6 +40,41 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
         }
 
         /// <summary>
+        /// Gets the links as a collection of IPublishedContent.
+        /// </summary>
+        /// <param name="content"></param>
+        /// <param name="property"></param>
+        /// <param name="recursive"></param>
+        /// <returns></returns>
+        public static IEnumerable<IPublishedContent> GetLinksContent(this IPublishedContent content, string property, bool recursive = false)
+        {
+            var umbracoHelper = new UmbracoHelper(UmbracoContext.Current);
+            var links = content.GetLinks(property, recursive);
+            var linksContent = new List<IPublishedContent>();
+            foreach (var link in links)
+            {
+                if (link != null && link.Type == LinkType.Content)
+                {
+                    linksContent.Add(umbracoHelper.TypedContent(link.Id));
+                }
+            }
+            return linksContent;
+        }
+
+        /// <summary>
+        /// Gets the link as IPublishedContent. Check for null.
+        /// </summary>
+        /// <param name="content"></param>
+        /// <param name="property"></param>
+        /// <param name="recursive"></param>
+        /// <returns></returns>
+        public static IPublishedContent GetLinkContent(this IPublishedContent content, string property, bool recursive = false)
+        {
+            var linksContent = content.GetLinksContent(property, recursive);
+            return linksContent.FirstOrDefault();
+        }
+
+        /// <summary>
         /// Works for SingleUrlPicker and MultiUrlPicker. Shows the full html link or collection of links.
         /// </summary>
         /// <param name="item"></param>
