@@ -39,5 +39,39 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
             var link = homepage.GetLink("websiteSettings");
             return umbracoHelper.TypedContent(link.Id);
         }
+
+        /// <summary>
+        /// Gets the strongly typed auxiliary content (e.g. website settings) for the current site.
+        /// </summary>
+        /// <param name="content"></param>
+        /// <param name="property">The strongly typed property that contains the MNTP value for the auxiliary content</param>
+        /// <returns></returns>
+        public static TAuxiliaryType GetAuxiliaryContent<TAuxiliaryFolder, TAuxiliaryType>(this IPublishedContent content, Func<TAuxiliaryFolder, IEnumerable<IPublishedContent>> property)
+            where TAuxiliaryFolder : class, IPublishedContent
+            where TAuxiliaryType : class, IPublishedContent
+        {
+            var auxiliaryFolderNode = content?.AncestorOrSelf<TAuxiliaryFolder>();
+
+            if (auxiliaryFolderNode == null)
+            {
+                if (UmbracoContext.Current?.PageId == null || UmbracoContext.Current.PageId == content?.Id)
+                {
+                    // no Umbraco context found or it's for the same node we already checked
+                    return default(TAuxiliaryType);
+                }
+
+                // try to get it based on current page ID, in case 'content' is a Nested Content node.
+                var currentPage = UmbracoContext.Current.ContentCache.GetById(UmbracoContext.Current.PageId.Value);
+
+                auxiliaryFolderNode = currentPage?.AncestorOrSelf<TAuxiliaryFolder>();
+            }
+
+            if (auxiliaryFolderNode == null)
+            {
+                return default(TAuxiliaryType);
+            }
+
+            return property(auxiliaryFolderNode)?.FirstOrDefault() as TAuxiliaryType;
+        }
     }
 }
