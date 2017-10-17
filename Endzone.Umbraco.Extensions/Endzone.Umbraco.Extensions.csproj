@@ -275,6 +275,7 @@
     <Compile Include="PublishedContentExtensions\Collections.cs" />
     <Compile Include="Services\EmailService.cs" />
     <Compile Include="UrlExtensions.cs" />
+    <Compile Include="ViewDataDictionaryExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
