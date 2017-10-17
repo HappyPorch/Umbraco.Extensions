@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
+using Umbraco.Core;
 using Umbraco.Core.Models;
 using Umbraco.Web;
 using Umbraco.Web.Models;
@@ -21,21 +22,42 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
             if (!content.HasValue(property))
                 return Enumerable.Empty<IPublishedContent>();
 
-            var imageIds = content.GetPropertyValue<string>(property).Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries);
-            var umbracoHelper = new UmbracoHelper(UmbracoContext.Current);
+            var contentValue = content.GetPropertyValue(property);
 
-            return umbracoHelper.TypedMedia(imageIds);
+            if (contentValue is IEnumerable<IPublishedContent>)
+            {
+                return (IEnumerable<IPublishedContent>)contentValue;
+            }
+            else if (contentValue is string)
+            {
+                // use old comma separated list
+                var imageIds = contentValue.ToString().Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries);
+                var umbracoHelper = new UmbracoHelper(UmbracoContext.Current);
+
+                return umbracoHelper.TypedMedia(imageIds);
+            }
+
+            // fallback in case value was neither a list or string
+            return Enumerable.Empty<IPublishedContent>();
         }
 
         public static IPublishedContent GetMedia(this IPublishedContent content, string property, bool recursive = false)
         {
-            var id = content.GetPropertyValue<string>(property, recursive);
+            var contentValue = content.GetPropertyValue(property, recursive);
 
-            if (id == null)
-                return null;
+            if (contentValue is IPublishedContent)
+            {
+                return (IPublishedContent)contentValue;
+            }
+            else if (contentValue is string)
+            {
+                // use old comma separated list
+                var umbracoHelper = new UmbracoHelper(UmbracoContext.Current);
+                return umbracoHelper.TypedMedia(contentValue.ToString());
+            }
 
-            var umbracoHelper = new UmbracoHelper(UmbracoContext.Current);
-            return umbracoHelper.TypedMedia(id);
+            // fallback in case value was neither IPublishedContent or string
+            return null;
         }
 
         /// <summary>
@@ -47,17 +69,39 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
             var htmlResult = new StringBuilder();
             if (item.HasValue(property, recurse))
             {
-                var imagesList = item.GetPropertyValue<string>(property, recurse).Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries).Select(int.Parse);
-                var umbracoHelper = new UmbracoHelper(UmbracoContext.Current);
-                var imagesCollection = umbracoHelper.TypedMedia(imagesList).Where(x => x != null);
-                var attribute = lazy ? "data-lazy" : "src";
+                IEnumerable<IPublishedContent> imagesCollection = null;
 
-                foreach (var imageItem in imagesCollection)
+                var itemValue = item.GetPropertyValue(property, recurse);
+
+                if (itemValue is IEnumerable<IPublishedContent>)
                 {
-                    var url = imageItem.GetCropUrl(cropAlias: cropAlias, imageCropMode: ImageCropMode.Crop, useCropDimensions: true, quality: imageQuality) + urlAppend;
-                    htmlResult.Append(prepend);
-                    htmlResult.Append($"<img {attribute}=\"{url}\" id=\"{id}\" class=\"{imgclass}\" alt=\"{imageItem.GetPropertyValue(altTextProperty)}\" title=\"{imageItem.GetPropertyValue(altTextProperty)}\" />");
-                    htmlResult.Append(append);
+                    // multiple media items
+                    imagesCollection = (IEnumerable<IPublishedContent>)itemValue;
+                }
+                else if (itemValue is IPublishedContent)
+                {
+                    // single media item
+                    imagesCollection = ((IPublishedContent)itemValue).AsEnumerableOfOne();
+                }
+                else if (itemValue is string)
+                {
+                    // use old comma separated list
+                    var imagesList = itemValue.ToString().Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries).Select(int.Parse);
+                    var umbracoHelper = new UmbracoHelper(UmbracoContext.Current);
+                    imagesCollection = umbracoHelper.TypedMedia(imagesList).Where(x => x != null);
+                }
+
+                if (imagesCollection != null)
+                {
+                    var attribute = lazy ? "data-lazy" : "src";
+
+                    foreach (var imageItem in imagesCollection)
+                    {
+                        var url = imageItem.GetCropUrl(cropAlias: cropAlias, imageCropMode: ImageCropMode.Crop, useCropDimensions: true, quality: imageQuality) + urlAppend;
+                        htmlResult.Append(prepend);
+                        htmlResult.Append($"<img {attribute}=\"{url}\" id=\"{id}\" class=\"{imgclass}\" alt=\"{imageItem.GetPropertyValue(altTextProperty)}\" title=\"{imageItem.GetPropertyValue(altTextProperty)}\" />");
+                        htmlResult.Append(append);
+                    }
                 }
             }
             return new HtmlString(htmlResult.ToString());
@@ -72,18 +116,40 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
             var htmlResult = new StringBuilder();
             if (item.HasValue(property, recurse))
             {
-                var imagesList = item.GetPropertyValue<string>(property, recurse).Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries).Select(int.Parse);
-                var umbracoHelper = new UmbracoHelper(UmbracoContext.Current);
-                var imagesCollection = umbracoHelper.TypedMedia(imagesList).Where(x => x != null);
-                var attribute = lazy ? "data-lazy" : "src";
+                IEnumerable<IPublishedContent> imagesCollection = null;
 
-                foreach (var imageItem in imagesCollection)
+                var itemValue = item.GetPropertyValue(property, recurse);
+
+                if (itemValue is IEnumerable<IPublishedContent>)
                 {
-                    var url = imageItem.Url + urlAppend;
-                    url = url.SetUrlParameter("quality", imageQuality);
-                    htmlResult.Append(prepend);
-                    htmlResult.Append($"<img {attribute}=\"{url}\" id=\"{id}\" class=\"{imgclass}\" alt=\"{imageItem.GetPropertyValue(altTextProperty)}\" title=\"{imageItem.GetPropertyValue(altTextProperty)}\" />");
-                    htmlResult.Append(append);
+                    // multiple media items
+                    imagesCollection = (IEnumerable<IPublishedContent>)itemValue;
+                }
+                else if (itemValue is IPublishedContent)
+                {
+                    // single media item
+                    imagesCollection = ((IPublishedContent)itemValue).AsEnumerableOfOne();
+                }
+                else if (itemValue is string)
+                {
+                    // use old comma separated list
+                    var imagesList = itemValue.ToString().Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries).Select(int.Parse);
+                    var umbracoHelper = new UmbracoHelper(UmbracoContext.Current);
+                    imagesCollection = umbracoHelper.TypedMedia(imagesList).Where(x => x != null);
+                }
+
+                if (imagesCollection != null)
+                {
+                    var attribute = lazy ? "data-lazy" : "src";
+
+                    foreach (var imageItem in imagesCollection)
+                    {
+                        var url = imageItem.Url + urlAppend;
+                        url = url.SetUrlParameter("quality", imageQuality);
+                        htmlResult.Append(prepend);
+                        htmlResult.Append($"<img {attribute}=\"{url}\" id=\"{id}\" class=\"{imgclass}\" alt=\"{imageItem.GetPropertyValue(altTextProperty)}\" title=\"{imageItem.GetPropertyValue(altTextProperty)}\" />");
+                        htmlResult.Append(append);
+                    }
                 }
             }
             return new HtmlString(htmlResult.ToString());
@@ -98,14 +164,35 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
             var htmlResult = new StringBuilder();
             if (item.HasValue(property, recurse))
             {
-                var imagesList = item.GetPropertyValue<string>(property, recurse).Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries).Select(int.Parse);
-                var umbracoHelper = new UmbracoHelper(UmbracoContext.Current);
-                var imagesCollection = umbracoHelper.TypedMedia(imagesList).Where(x => x != null);
+                IEnumerable<IPublishedContent> imagesCollection = null;
 
-                foreach (var image in imagesCollection)
+                var itemValue = item.GetPropertyValue(property, recurse);
+
+                if (itemValue is IEnumerable<IPublishedContent>)
                 {
-                    var url = prepend + image.GetCropUrl(cropAlias: cropAlias, imageCropMode: ImageCropMode.Crop, useCropDimensions: true, quality: imageQuality) + append;
-                    htmlResult.Append(url);
+                    // multiple media items
+                    imagesCollection = (IEnumerable<IPublishedContent>)itemValue;
+                }
+                else if (itemValue is IPublishedContent)
+                {
+                    // single media item
+                    imagesCollection = ((IPublishedContent)itemValue).AsEnumerableOfOne();
+                }
+                else if (itemValue is string)
+                {
+                    // use old comma separated list
+                    var imagesList = itemValue.ToString().Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries).Select(int.Parse);
+                    var umbracoHelper = new UmbracoHelper(UmbracoContext.Current);
+                    imagesCollection = umbracoHelper.TypedMedia(imagesList).Where(x => x != null);
+                }
+
+                if (imagesCollection != null)
+                {
+                    foreach (var image in imagesCollection)
+                    {
+                        var url = prepend + image.GetCropUrl(cropAlias: cropAlias, imageCropMode: ImageCropMode.Crop, useCropDimensions: true, quality: imageQuality) + append;
+                        htmlResult.Append(url);
+                    }
                 }
             }
             return new HtmlString(htmlResult.ToString());
