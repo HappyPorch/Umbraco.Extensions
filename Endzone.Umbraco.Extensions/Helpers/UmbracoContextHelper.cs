@@ -12,6 +12,19 @@ namespace Endzone.Umbraco.Extensions.Helpers
         /// <summary>
         /// Ensures UmbracoContext exists for current request by either using existing one, or creating one based on the current request.
         /// </summary>
+        /// <example>
+        /// A custom PluginController that gets called outside the Umbraco context (route created using the RouteTable.Routes.MapRoute method):
+        /// public class MyPluginController : PluginController
+        /// {
+        ///     public MyPluginController() : base(UmbracoContextHelper.EnsureContext())
+        ///     {
+        ///         public ActionResult MyAction(int nodeId)
+        ///         {
+        ///             var node = UmbracoContext.ContentCache.GetById(nodeId);
+        ///         }
+        ///     }
+        /// }
+        /// </example>
         /// <param name="replaceContext">Whether to replace the current context if it already exists (defaults to false)</param>
         /// <returns></returns>
         public static UmbracoContext EnsureContext(bool replaceContext = false)
