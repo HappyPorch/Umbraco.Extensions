@@ -262,7 +262,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Helpers\UmbracoContextHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="PropertyValueConverters\SwitcherValueConverter.cs" />
     <Compile Include="PublishedContentExtensions\Configuration.cs" />
     <Compile Include="PublishedContentExtensions\ContentDate.cs" />
     <Compile Include="PublishedContentExtensions\LanguageVariants .cs" />
