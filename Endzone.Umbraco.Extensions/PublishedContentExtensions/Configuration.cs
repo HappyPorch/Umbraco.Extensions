@@ -42,13 +42,14 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
 
         /// <summary>
         /// Gets the strongly typed auxiliary content (e.g. website settings) for the current site.
-        /// Example:
+        /// </summary>
+        /// <example>
         /// Homepage node has a composition doc type of AuxiliaryFolder (strongly-typed interface: IAuxiliaryFolder)
         /// which has a property called WebsiteSettings (MNTP limited to doc type WebsiteSettings).
         /// To get the website settings on the current node call: 
         /// Model.GetAuxiliaryContent&lt;IAuxiliaryFolder, WebsiteSettings&gt;(x => x.WebsiteSettings)
         /// This will return the selected WebsiteSettings node with its strongly-typed model.
-        /// </summary>
+        /// </example>
         /// <param name="content"></param>
         /// <param name="property">The strongly typed property that contains the MNTP value for the auxiliary content</param>
         /// <returns></returns>
