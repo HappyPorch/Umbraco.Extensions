@@ -1,4 +1,6 @@
-﻿using System.Web;
+﻿using System.IO;
+using System.Web;
+using System.Web.Hosting;
 using Umbraco.Core;
 using Umbraco.Core.Configuration;
 using Umbraco.Web;
@@ -29,7 +31,7 @@ namespace Endzone.Umbraco.Extensions.Helpers
         /// <returns></returns>
         public static UmbracoContext EnsureContext(bool replaceContext = false)
         {
-            var httpContext = new HttpContextWrapper(HttpContext.Current);
+            var httpContext = new HttpContextWrapper(HttpContext.Current ?? CreateHttpContext());
             var applicationContext = ApplicationContext.Current;
 
             return UmbracoContext.EnsureContext(
@@ -39,6 +41,18 @@ namespace Endzone.Umbraco.Extensions.Helpers
                 UmbracoConfig.For.UmbracoSettings(),
                 UrlProviderResolver.Current.Providers,
                 replaceContext);
+        }
+
+        /// <summary>
+        /// Creates an HttpContext instance based on a dummy request.
+        /// </summary>
+        /// <example>
+        /// Will be used when there is no real HttpContext, for example in tasks running on a background thread.
+        /// </example>
+        /// <returns></returns>
+        private static HttpContext CreateHttpContext()
+        {
+            return new HttpContext(new SimpleWorkerRequest("/", string.Empty, new StringWriter()));
         }
     }
 }
