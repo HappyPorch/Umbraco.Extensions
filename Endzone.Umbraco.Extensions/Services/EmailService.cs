@@ -49,7 +49,7 @@ namespace Endzone.Umbraco.Extensions.Services
                     foreach (string key in files)
                     {
                         HttpPostedFile file = files[key];
-                        if (file == null) continue;
+                        if (file == null || file.ContentLength == 0) continue;
                         string fileName = Path.GetFileName(file.FileName);
                         var attachment = new Attachment(file.InputStream, fileName);
                         mail.Attachments.Add(attachment);
