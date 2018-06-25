@@ -80,5 +80,25 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
                 translations[culture] = variant;
             }
         }
+
+        /// <summary>
+        /// Returns an ordered sequence of translations of the current page suitable for using on the link alternate tags.
+        /// This is a simple version of GetLanguageVariants that only returns the relations that include this page.
+        /// </summary>
+        /// <param name="page">The page whose translations you want to get.</param>
+        /// <returns>An ordered sequence of translations as they appear in the CMS.</returns>
+        public static IEnumerable<IPublishedContent> GetHrefLangPages(this IPublishedContent page)
+        {
+            var umbracoHelper = new UmbracoHelper(UmbracoContext.Current);
+
+            return ApplicationContext.Current.Services.RelationService.GetByParentOrChildId(page.Id)
+                .Where(r => r.RelationType.Name == "Translations")
+                .Select(r => r.ChildId != page.Id ? r.ChildId : r.ParentId)                                 // get the id of the related pages
+                .Select(i => ApplicationContext.Current.Services.RelationService.GetByParentOrChildId(i))   // get the ids of 2nd level relations
+                .SelectMany(i => i)                                                                         // puts them all in one list
+                .Select(r => umbracoHelper.TypedContent(r.ChildId != page.Id ? r.ChildId : r.ParentId))     // convert to IPublishedContent
+                .Where(p => p != null)                                                                      // remove unpublished pages
+                .DistinctBy(p => p.Id);                                                                     // remove duplicates
+        }
     }
 }
