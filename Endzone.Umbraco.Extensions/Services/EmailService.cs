@@ -23,6 +23,8 @@ namespace Endzone.Umbraco.Extensions.Services
         /// <param name="replyToName">Display name</param>
         public static void SendEmail(string fromEmailAddress, IEnumerable<string> toEmailAddresses, string subject, string body, bool isBodyHtml = false, HttpFileCollection files = null, string fromName = "", string replyTo = "", string replyToName = "")
         {
+            // Skips sending email. For testing on ghost inspector.
+            if (body.Contains("[skip email]")) { return; }
             using (var smtpClient = new SmtpClient())
             {
                 var mail = new MailMessage
