@@ -28,7 +28,7 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
             {
                 return (IEnumerable<IPublishedContent>)contentValue;
             }
-            else if (contentValue is string)
+            else if (contentValue is string || contentValue is int)
             {
                 // use old comma separated list
                 var imageIds = contentValue.ToString().Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries);
@@ -49,7 +49,7 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
             {
                 return (IPublishedContent)contentValue;
             }
-            else if (contentValue is string)
+            else if (contentValue is string || contentValue is int)
             {
                 // use old comma separated list
                 var umbracoHelper = new UmbracoHelper(UmbracoContext.Current);
@@ -83,7 +83,7 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
                     // single media item
                     imagesCollection = ((IPublishedContent)itemValue).AsEnumerableOfOne();
                 }
-                else if (itemValue is string)
+                else if (itemValue is string || itemValue is int)
                 {
                     // use old comma separated list
                     var imagesList = itemValue.ToString().Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries).Select(int.Parse);
@@ -130,7 +130,7 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
                     // single media item
                     imagesCollection = ((IPublishedContent)itemValue).AsEnumerableOfOne();
                 }
-                else if (itemValue is string)
+                else if (itemValue is string || itemValue is int)
                 {
                     // use old comma separated list
                     var imagesList = itemValue.ToString().Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries).Select(int.Parse);
@@ -178,7 +178,7 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
                     // single media item
                     imagesCollection = ((IPublishedContent)itemValue).AsEnumerableOfOne();
                 }
-                else if (itemValue is string)
+                else if (itemValue is string || itemValue is int)
                 {
                     // use old comma separated list
                     var imagesList = itemValue.ToString().Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries).Select(int.Parse);
