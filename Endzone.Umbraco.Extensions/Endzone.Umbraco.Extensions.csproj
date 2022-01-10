@@ -262,6 +262,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="App_Start\UmbracoEvents.cs" />
     <Compile Include="Helpers\UmbracoContextHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PropertyValueConverters\SwitcherValueConverter.cs" />
@@ -281,17 +282,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="App_Plugins\ModelsBuilder\package.manifest" />
-    <None Include="App_Plugins\RJP.MultiUrlPicker\package.manifest" />
     <None Include="Endzone.Umbraco.Extensions.nuspec" />
     <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="App_Plugins\ModelsBuilder\modelsbuilder.controller.js" />
-    <Content Include="App_Plugins\ModelsBuilder\modelsbuilder.htm" />
-    <Content Include="App_Plugins\ModelsBuilder\modelsbuilder.resource.js" />
-    <Content Include="App_Plugins\RJP.MultiUrlPicker\MultiUrlPicker.html" />
-    <Content Include="App_Plugins\RJP.MultiUrlPicker\MultiUrlPicker.js" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
