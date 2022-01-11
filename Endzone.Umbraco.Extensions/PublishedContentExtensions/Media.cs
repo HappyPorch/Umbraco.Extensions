@@ -97,7 +97,13 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
 
                     foreach (var imageItem in imagesCollection)
                     {
-                        var url = imageItem.GetCropUrl(cropAlias: cropAlias, imageCropMode: ImageCropMode.Crop, useCropDimensions: true, quality: imageQuality) + urlAppend;
+                        var url = imageItem.GetCropUrl(cropAlias: cropAlias, imageCropMode: ImageCropMode.Crop, useCropDimensions: true) + urlAppend;
+                        
+                        if (!url.Contains("quality="))
+                        {
+                            url = url.SetUrlParameter("quality", imageQuality);
+                        }
+
                         htmlResult.Append(prepend);
                         htmlResult.Append($"<img {attribute}=\"{url}\" id=\"{id}\" class=\"{imgclass}\" alt=\"{imageItem.GetPropertyValue(altTextProperty)}\" title=\"{imageItem.GetPropertyValue(altTextProperty)}\" />");
                         htmlResult.Append(append);
