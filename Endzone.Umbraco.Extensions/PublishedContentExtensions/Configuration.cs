@@ -37,6 +37,12 @@ namespace Endzone.Umbraco.Extensions.PublishedContentExtensions
                 }
             }
             var link = homepage.GetLink("websiteSettings");
+
+            if (link == null)
+            {
+                return null;
+            }
+
             return umbracoHelper.TypedContent(link.Id);
         }
 
